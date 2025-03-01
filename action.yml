@@ -1,0 +1,46 @@
+name: "Remove Specific exist image and container"
+author: "lovegupta112"
+description: "Removing Specific exist image and container"
+branding:
+   color: blue
+   icon: trash-2
+inputs: 
+    SSH_PRIVATE_KEY:
+       description: "Your  ssh private key"
+       required: true
+    HOST_IP:
+       description: "Your Virtual machine ip"
+       required: true
+    CONTAINER_NAME:
+       description: "Your docker container name"
+       required: true
+
+runs: 
+  using: "composite"
+  steps:
+    - name: ssh into vm
+      run: |
+        echo "${{ inputs.SSH_PRIVATE_KEY }}" > ~/ssh_key
+        chmod 700 ~/ssh_key
+        ssh -o StrictHostKeyChecking=no -i ~/ssh_key ${{inputs.HOST_IP}} -t << 'EOF'
+
+          
+          if docker ps -a --format '{{.Names}}' | grep -q ${{inputs.CONTAINER_NAME}}; then
+
+              IMAGE_ID=$(docker inspect --format='{{.Image}}' ${{inputs.CONTAINER_NAME}})
+              echo "Deleting container ..${{inputs.CONTAINER_NAME}}"
+              docker rm -f ${{inputs.CONTAINER_NAME}} 
+          
+              if [ -n "$IMAGE_ID" ]; then
+                echo "Deleting image ..$IMAGE_ID"
+                docker rmi -f "$IMAGE_ID"
+              else
+                  echo "No image found for the container- ${{inputs.CONTAINER_NAME}}"
+              fi 
+
+          else
+           echo "container ${{inputs.CONTAINER_NAME}} does not exist."
+          fi
+        EOF
+
+    
