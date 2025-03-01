@@ -42,5 +42,5 @@ runs:
            echo "container ${{inputs.CONTAINER_NAME}} does not exist."
           fi
         EOF
-
+      shell: bash
     
