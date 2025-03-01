@@ -20,7 +20,7 @@ runs:
   steps:
     - name: ssh into vm
       run: |
-        echo "${{ inputs.SSH_PRIVATE_KEY }}" > ~/ssh_key
+        echo "${{ inputs.SSH_PRIVATE_KEY }}" &> ~/ssh_key
         chmod 700 ~/ssh_key
         ssh -o StrictHostKeyChecking=no -i ~/ssh_key ${{inputs.HOST_IP}} -t << 'EOF'
 

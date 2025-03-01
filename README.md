@@ -33,11 +33,15 @@ jobs:
           HOST_IP: ${{secrets.HOST_IP}}
           CONTAINER_NAME: ${{secrets.BACKEND_CONTAINER_NAME}}
       - name: start the container #start your container 
-        run: 
-          docker run -d -p 8080:8080 \ 
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" &> ~/ssh_key 
+          chmod 700 ~/ssh_key 
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ${{secrets.HOST_IP}} -t << 'EOF'
+          docker run -d -p 8080:8080 \
           -e DATABASE_URL=${{secrets.DATABASE_URL}} \
           --name ${{secrets.BACKEND_CONTAINER_NAME}} \
            your-dockerhub-username/your-image-name:latest
+          EOF
            
 ```
 ##  Inputs: 
